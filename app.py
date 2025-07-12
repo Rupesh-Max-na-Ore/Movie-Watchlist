@@ -37,9 +37,17 @@ def print_movie_list(heading, movies):
     print("---- \n")
 
 
+def print_watched_movie_list(username, movies):
+    print(f"-- {username}'s watched movies --")
+    for movie in movies:
+        print(f"{movie[1]}")
+    print("---- \n")
+
+
 def prompt_watch_movie():
-    movie_title = input("Enter movie title you've watched: ")
-    database.watch_movie(movie_title)
+    username = input("Username: ")
+    movie_title = input("Enter the movie title you've watched: ")
+    database.watch_movie(username, movie_title)
 
 
 while (user_input := input(menu)) != "6":
@@ -54,7 +62,8 @@ while (user_input := input(menu)) != "6":
     elif user_input == "4":
         prompt_watch_movie()
     elif user_input == "5":
-        movies = database.get_watched_movies()  # False is default
-        print_movie_list("Watched", movies)
+        username = input("Username: ")
+        movies = database.get_watched_movies(username)  # False is default
+        print_watched_movie_list(username, movies)
     else:
         print("Invalid input, please try again!")
