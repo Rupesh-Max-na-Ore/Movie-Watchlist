@@ -15,7 +15,8 @@ CREATE_WATCHED_TABLE = """CREATE TABLE IF NOT EXISTS watched (
     user_username TEXT,
     movie_id INTEGER,
     FOREIGN KEY(user_username) REFERENCES users(username),
-    FOREIGN KEY(movie_id) REFERENCES movies(id)
+    FOREIGN KEY(movie_id) REFERENCES movies(id),
+    UNIQUE(user_username, movie_id)
 );"""
 
 INSERT_MOVIES = "INSERT INTO movies (title, release_timestamp) VALUES (?, ?);"
@@ -30,6 +31,7 @@ WHERE users.username = ?;"""
 INSERT_WATCHED_MOVIE = "INSERT INTO watched (user_username, movie_id) VALUES (?, ?);"
 SET_MOVIE_WATCHED = "UPDATE movies SET watched = 1 WHERE title = ?;"
 SEARCH_MOVIES = "SELECT * FROM movies WHERE title LIKE ? COLLATE NOCASE;"
+GET_ALL_USERS = "SELECT username FROM users;"
 # For faster searching and filtering when number of movies get large
 CREATE_RELEASE_INDEX = (
     "CREATE INDEX IF NOT EXISTS idx_movies_release ON movies(release_timestamp);"
@@ -81,6 +83,17 @@ def watch_movie(username, movie_id):
         connection.execute(
             "INSERT OR IGNORE INTO users (username) VALUES (?);", (username,)
         )
+        # Check if already watched
+        cursor = connection.cursor()
+        cursor.execute(
+            "SELECT 1 FROM watched WHERE user_username = ? AND movie_id = ?;",
+            (username, movie_id),
+        )
+        if cursor.fetchone():
+            print(
+                f"User '{username}' has already marked movie ID {movie_id} as watched."
+            )
+            return
         connection.execute(INSERT_WATCHED_MOVIE, (username, movie_id))
 
 
@@ -89,3 +102,10 @@ def get_watched_movies(username):
         cursor = connection.cursor()
         cursor.execute(SELECT_WATCHED_MOVIES, (username,))
         return cursor.fetchall()
+
+
+def get_all_users():
+    with connection:
+        cursor = connection.cursor()
+        cursor.execute(GET_ALL_USERS)
+        return [row[0] for row in cursor.fetchall()]

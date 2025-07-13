@@ -40,8 +40,40 @@ def print_movie_list(heading, movies):
 
 
 def prompt_watch_movie():
+    # Show all users
+    users = database.get_all_users()
+    if users:
+        print("Available users:")
+        for user in users:
+            print(f"- {user}")
+    else:
+        print("No users found. Please add a user first.")
+        return
+
+    # Show all movies
+    movies = database.get_movies()
+    if movies:
+        print("Available movies:")
+        for _id, title, release_date in movies:
+            print(f"{_id}: {title}")
+    else:
+        print("No movies found. Please add a movie first.")
+        return
+
     username = input("Username: ")
     movie_id = input("Movie ID: ")
+
+    # Validate user
+    if username not in users:
+        print(f"User '{username}' does not exist! Please add the user first.")
+        return
+
+    # Validate movie ID
+    movie_ids = [str(_id) for _id, _, _ in movies]
+    if movie_id not in movie_ids:
+        print(f"Movie ID '{movie_id}' does not exist! Please enter a valid movie ID.")
+        return
+
     database.watch_movie(username, movie_id)
 
 
