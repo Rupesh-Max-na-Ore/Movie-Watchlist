@@ -1,31 +1,3 @@
-"""
-app.py
-
-This is the main entry point for the Movie Watchlist application.
-It provides a command-line interface for users to manage a movie watchlist,
-including adding movies, viewing upcoming and all movies, marking movies as watched,
-adding users, and searching for movies.
-
-The application interacts with a separate 'database' module to perform all data operations.
-
-Main Features:
-- Add new movies with a title and release date.
-- View upcoming movies (movies with a release date in the future).
-- View all movies in the database.
-- Mark a movie as watched by a user.
-- View watched movies for a specific user.
-- Add new users to the application.
-- Search for movies by partial title.
-
-The application runs in a loop, presenting a menu to the user and executing the selected action.
-
-Note:
-- Dates are handled as POSIX timestamps for storage and converted to human-readable format for display.
-- User input is validated for menu selection, but not for other fields (e.g., date format).
-- All database operations are delegated to the 'database' module.
-
-"""
-
 import datetime
 
 import database
