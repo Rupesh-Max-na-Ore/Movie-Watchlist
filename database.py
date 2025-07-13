@@ -1,3 +1,54 @@
+"""
+This module provides functions to manage a movie watchlist database using SQLite.
+
+It supports creating tables for movies, users, and watched movies, as well as
+adding users and movies, searching for movies, marking movies as watched, and
+retrieving watched or upcoming movies.
+
+Functions:
+    create_tables():
+        Creates the necessary tables and indexes in the database if they do not exist.
+
+    add_user(username):
+        Adds a new user to the users table.
+        Args:
+            username (str): The username to add.
+
+    add_movie(title, release_timestamp):
+        Adds a new movie to the movies table.
+        Args:
+            title (str): The title of the movie.
+            release_timestamp (float): The release date as a Unix timestamp.
+
+    get_movies(upcoming=False):
+        Retrieves all movies or only upcoming movies based on the 'upcoming' flag.
+        Args:
+            upcoming (bool): If True, returns only movies with a future release date.
+        Returns:
+            list of tuple: The movies matching the criteria.
+
+    search_movies(search_term):
+        Searches for movies with titles matching the search term (case-insensitive).
+        Args:
+            search_term (str): The term to search for in movie titles.
+        Returns:
+            list of tuple: The movies matching the search term.
+
+    watch_movie(username, movie_id):
+        Marks a movie as watched by a user. Adds the user if not already present.
+        Args:
+            username (str): The username of the watcher.
+            movie_id (int): The ID of the movie to mark as watched.
+
+    get_watched_movies(username):
+        Retrieves all movies watched by the specified user.
+        Args:
+            username (str): The username whose watched movies to retrieve.
+        Returns:
+            list of tuple: The movies watched by the user.
+
+"""
+
 import datetime
 import sqlite3
 
@@ -30,6 +81,12 @@ WHERE users.username = ?;"""
 INSERT_WATCHED_MOVIE = "INSERT INTO watched (user_username, movie_id) VALUES (?, ?);"
 SET_MOVIE_WATCHED = "UPDATE movies SET watched = 1 WHERE title = ?;"
 SEARCH_MOVIES = "SELECT * FROM movies WHERE title LIKE ? COLLATE NOCASE;"
+# For faster searching and filtering when number of movies get large
+CREATE_RELEASE_INDEX = (
+    "CREATE INDEX IF NOT EXISTS idx_movies_release ON movies(release_timestamp);"
+)
+
+# Establish connection to the SQLite database file named "data.db".
 connection = sqlite3.connect("data.db")
 
 
@@ -38,6 +95,7 @@ def create_tables():
         connection.execute(CREATE_MOVIES_TABLE)
         connection.execute(CREATE_USERS_TABLE)
         connection.execute(CREATE_WATCHED_TABLE)
+        connection.execute(CREATE_RELEASE_INDEX)
 
 
 def add_user(username):
